@@ -1,0 +1,458 @@
+
+import java.util.ArrayList;
+import java.sql.*;
+import javax.swing.RowFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+
+/**
+ *
+ * @author asame
+ */
+public class frmManage extends javax.swing.JFrame {
+    DefaultTableModel model;
+    
+    
+    /**
+     * Creates new form frmManage
+     */
+    public frmManage() {
+        initComponents();
+        populateTable();
+        
+    }
+    
+    public void populateTable(){
+        model = (DefaultTableModel)tbl.getModel();
+        model.setRowCount(0);
+        
+        try{
+                ArrayList<Worker> workers = getWorkers();
+                for(Worker worker: workers){
+                    
+                    Object[] row = {
+                    worker.getId(),
+                    worker.getName(),
+                    worker.getAge(),
+                    worker.getSalary(),
+                    worker.getDepartmant()                    
+                   
+                    };
+                   model.addRow(row);
+                
+                }
+                 
+        
+        }catch(SQLException exception){
+            
+        }
+        
+        
+    }
+    
+    
+    
+    
+    public ArrayList<Worker> getWorkers() throws SQLException{
+        Connection connection = null;
+        DbHelper dbhelper = new DbHelper();
+        Statement statement = null;
+        ResultSet result;
+        ArrayList<Worker> workers = null;
+        
+        
+        
+        try{
+            
+            connection = dbhelper.getConnectin();
+            statement = connection.createStatement();
+            result = statement.executeQuery("select *  from informations");
+            workers = new ArrayList<Worker>();
+        
+        while(result.next()){
+        
+            workers.add(new Worker(
+            result.getInt("id"),
+            result.getString("Name"),
+            result.getInt("Age"),
+            result.getInt("Salary"),
+            result.getString("Departmant")
+          
+            ));
+            }
+        
+        
+        }catch(SQLException exception){
+            
+            dbhelper.showErrorMessage(exception);
+              
+        }finally{
+            
+            statement.close();
+            connection.close();
+        
+        
+        }
+        
+       return workers;
+      
+    }
+    
+    
+    public void addWorker(){
+        
+        Connection connection = null;
+        DbHelper dbhelper = new DbHelper();
+        PreparedStatement statement = null;
+    
+        try{
+            
+            connection = dbhelper.getConnectin();
+            String sql = "Insert into informations(Name,Age,Salary,Departmant) values(?,?,?,?)";
+            statement = connection.prepareStatement(sql);
+            statement.setString(1,txfName.getText());
+            statement.setInt(2,Integer.valueOf(txfAge.getText()));
+            statement.setInt(3,Integer.valueOf(txfSalary.getText()));
+            statement.setString(4,txfDepartmant.getText());
+             
+            int result = statement.executeUpdate();
+            
+            populateTable();
+            
+        }catch(SQLException exception){
+            
+            dbhelper.showErrorMessage(exception);
+         
+        
+     
+        }finally{
+            
+            try{
+            statement.close();
+            connection.close();            
+            
+            }catch(SQLException exception){
+            
+            }
+
+        
+        
+        }
+    }
+    
+    
+    
+    public void removeWorker(){
+      
+        Connection connection = null;
+        DbHelper dbhelper = new DbHelper();
+        
+        PreparedStatement statement = null;
+        
+        
+        try{
+                    connection = dbhelper.getConnectin();
+            String sql = "delete from informations where Name=?";
+            
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, txfName.getText());
+            
+            int result2 = statement.executeUpdate();
+            
+            populateTable();
+        
+        }catch(SQLException exception){
+            dbhelper.showErrorMessage(exception);
+       
+        }finally{
+            
+            try{
+                 statement.close();
+                   connection.close();
+           
+            }catch(SQLException exception){
+            
+            
+            }
+            
+
+        }  
+    }
+    
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tbl = new javax.swing.JTable();
+        btnAdd = new javax.swing.JButton();
+        txfName = new javax.swing.JTextField();
+        lblName = new javax.swing.JLabel();
+        lnlAge = new javax.swing.JLabel();
+        lblSalary = new javax.swing.JLabel();
+        lblDepartmant = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        txfAge = new javax.swing.JTextField();
+        txfDepartmant = new javax.swing.JTextField();
+        txfSalary = new javax.swing.JTextField();
+        btnRemove = new javax.swing.JButton();
+        tbtFind = new javax.swing.JTextField();
+        lblFind = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        tbl.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "id", "İsim", "Yaş", "Maaş", "Departman"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                true, true, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tbl);
+        if (tbl.getColumnModel().getColumnCount() > 0) {
+            tbl.getColumnModel().getColumn(1).setResizable(false);
+            tbl.getColumnModel().getColumn(2).setResizable(false);
+            tbl.getColumnModel().getColumn(4).setResizable(false);
+        }
+
+        btnAdd.setText("Ekle");
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
+
+        lblName.setText("İsim:");
+
+        lnlAge.setText("Yaş");
+
+        lblSalary.setText("Maaş:");
+
+        lblDepartmant.setText("Departman:");
+
+        txfAge.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txfAgeActionPerformed(evt);
+            }
+        });
+
+        btnRemove.setText("Sil");
+        btnRemove.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRemoveActionPerformed(evt);
+            }
+        });
+
+        tbtFind.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tbtFindActionPerformed(evt);
+            }
+        });
+        tbtFind.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tbtFindKeyReleased(evt);
+            }
+        });
+
+        lblFind.setText("Ara");
+
+        jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel7.setText("Çalışan Yönetimi Uygulaması");
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(431, 431, 431))
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(106, 106, 106)
+                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(52, 52, 52)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblFind, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(46, 46, 46)
+                                .addComponent(tbtFind, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(lblName, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(txfName, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(lnlAge, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(57, 57, 57)
+                                        .addComponent(txfAge, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(lblSalary, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(57, 57, 57)
+                                        .addComponent(txfSalary, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(lblDepartmant, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(txfDepartmant, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(30, 30, 30)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnRemove, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(5, 5, 5)
+                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tbtFind, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblFind, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAdd)
+                    .addComponent(txfName, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblName, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lnlAge)
+                    .addComponent(txfAge, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnRemove))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblSalary)
+                    .addComponent(txfSalary, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblDepartmant)
+                    .addComponent(txfDepartmant, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel5)
+                .addContainerGap(46, Short.MAX_VALUE))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        // TODO add your handling code here:
+        addWorker();
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
+        removeWorker();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnRemoveActionPerformed
+
+    private void tbtFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tbtFindActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tbtFindActionPerformed
+
+    private void txfAgeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txfAgeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txfAgeActionPerformed
+
+    private void tbtFindKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tbtFindKeyReleased
+        // TODO add your handling code here:       String searchKey = txtSearch.getText();
+               String searchKey = tbtFind.getText();
+        TableRowSorter<DefaultTableModel> tableRowSorter = 
+                new TableRowSorter<DefaultTableModel>(model);
+     tbl.setRowSorter(tableRowSorter);
+     tableRowSorter.setRowFilter(RowFilter.regexFilter(searchKey));
+     
+    }//GEN-LAST:event_tbtFindKeyReleased
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(frmManage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(frmManage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(frmManage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(frmManage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new frmManage().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAdd;
+    private javax.swing.JButton btnRemove;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblDepartmant;
+    private javax.swing.JLabel lblFind;
+    private javax.swing.JLabel lblName;
+    private javax.swing.JLabel lblSalary;
+    private javax.swing.JLabel lnlAge;
+    private javax.swing.JTable tbl;
+    private javax.swing.JTextField tbtFind;
+    private javax.swing.JTextField txfAge;
+    private javax.swing.JTextField txfDepartmant;
+    private javax.swing.JTextField txfName;
+    private javax.swing.JTextField txfSalary;
+    // End of variables declaration//GEN-END:variables
+
+
+}
